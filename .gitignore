@@ -1,0 +1,17 @@
+/.ipynb_checkpoints
+microsoft-malware-prediction.zip
+microsoft-malware-prediction/sample_submission.csv
+microsoft-malware-prediction/test.csv
+microsoft-malware-prediction/train.csv
+country.csv
+firewall.csv
+os.csv
+organization.csv
+
+machine.csv
+machine_type.csv
+malware.csv
+train_40000.csv
+
+
+
