@@ -1,2 +1,4 @@
 rdflib
 py-cpuinfo
+py2neo
+pandas

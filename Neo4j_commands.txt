@@ -1,0 +1,81 @@
+// Note:
+// Place CSV files at C:\Users\jy\.Neo4jDesktop\neo4jDatabases\database-1734f18f-3c9b-47de-8eec-3abec6ab8102\installation-3.5.12\import
+// Enable multiple statement query in Neo4j Browser: https://stackoverflow.com/questions/20420042/submitting-multiple-semi-colon-separated-cypher-statements-through-neo4j-browser.
+
+
+// DELETE EVERYTHING
+MATCH (n) DETACH DELETE n;
+
+// CREATE GRAPH 
+LOAD CSV WITH HEADERS FROM "file:///machine.csv" AS line
+CREATE (:Machine { identifier: line.MachineIdentifier, processor: line.Processor, processor_manufacturer: line.Census_ProcessorManufacturerIdentifier, processor_model: line.Census_ProcessorModelIdentifier, machine_type: line.Census_MDC2FormFactor, HasDetections: line.HasDetections, Firewall: line.Firewall, OSIdentifier: line.OSIdentifier, CountryIdentifier: line.CountryIdentifier, OrganizationIdentifier: line.OrganizationIdentifier});
+
+LOAD CSV WITH HEADERS FROM "file:///country.csv" AS row
+CREATE (c:Country)
+SET c = row;
+
+LOAD CSV WITH HEADERS FROM "file:///organization.csv" AS row
+CREATE (o:Organization)
+SET o = row;
+
+LOAD CSV WITH HEADERS FROM "file:///os.csv" AS row
+CREATE (v:OperatingSystem)
+SET v = row;
+
+LOAD CSV WITH HEADERS FROM "file:///firewall.csv" AS row
+CREATE (v:Firewall)
+SET v = row;
+
+LOAD CSV WITH HEADERS FROM "file:///machine_type.csv" AS row
+CREATE (v:MachineType)
+SET v = row;
+
+LOAD CSV WITH HEADERS FROM "file:///malware.csv" AS row
+CREATE (v:MalwareDetected)
+SET v = row;
+
+CREATE INDEX ON :Machine(MachineIdentifier);
+CREATE INDEX ON :Country(CountryIdentifier);
+CREATE INDEX ON :Organization(OrganizationIdentifier);
+CREATE INDEX ON :OperatingSystem(OSIdentifier);
+CREATE INDEX ON :Firewall(Firewall);
+CREATE INDEX ON :MachineType(machine_type);
+CREATE INDEX ON :MalwareDetected(HasDetections);
+
+// CREATE RELATIONSHIPS
+MATCH (c:Country),(m:Machine)
+WHERE c.CountryIdentifier = m.CountryIdentifier
+CREATE (m)-[:COUNTRY_AT]->(c);
+
+MATCH (v:Organization),(m:Machine)
+WHERE v.OrganizationIdentifier = m.OrganizationIdentifier
+CREATE (m)-[:ORG_AT]->(v);
+
+MATCH (v:OperatingSystem),(m:Machine)
+WHERE v.OSIdentifier = m.OSIdentifier
+CREATE (m)-[:HAS_OS]->(v);
+
+MATCH (v:Firewall),(m:Machine)
+WHERE v.Firewall = m.Firewall
+CREATE (m)-[:HAS_FIREWALL]->(v);
+
+MATCH (v:MachineType),(m:Machine)
+WHERE v.machine_type = m.machine_type
+CREATE (m)-[:MACHINETYPE_IS]->(v);
+
+MATCH (v:MalwareDetected),(m:Machine)
+WHERE v.HasDetections = m.HasDetections
+CREATE (m)-[:HAS_MALWARE]->(v);
+
+
+// SAMPLE QUERY
+
+// Simple query
+MATCH (m:Machine)-[r:COUNTRY_AT]->(c:Country) RETURN m,c LIMIT 5
+MATCH (m:Machine)-[r:ORG_AT]->(v:Organization) RETURN m,v LIMIT 5
+
+// Query machines from organization with ID '11.0' and '37.0', and visualize the machine type of each machine and whether malware is detected on the machine.
+MATCH (m:Machine)-[:HAS_MALWARE|:MACHINETYPE_IS]->(o)
+WHERE m.OrganizationIdentifier IN ['11.0', '37.0']
+RETURN m,o;
+
