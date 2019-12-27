@@ -14,5 +14,6 @@ Different tables with selected attributes were created and exported to CSV files
   
 Then, the CSVs were used to create a graph in Neo4j using [these commands](https://github.com/junyitt/bdm-framework/blob/master/Neo4j_commands.txt). Sample queries can be found at the end of text file. The figure below shows the output of the final query command, which is useful to have a visual understanding of what machine type is likely to be affected by Malware.
   
-![alt text][graphimg]
+![alt text][graphimg]  
+  
 [graphimg]: https://raw.githubusercontent.com/junyitt/bdm-framework/master/graph_example.PNG "Query example"
